@@ -12,6 +12,8 @@ export default function Contact() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,15 +23,37 @@ export default function Contact() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would send the form data to your backend
-    console.log('Form Data:', formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      setFormData({ name: '', email: '', company: '', project: '', message: '' });
-      setSubmitted(false);
-    }, 3000);
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:3001/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitted(true);
+        setFormData({ name: '', email: '', company: '', project: '', message: '' });
+        setTimeout(() => {
+          setSubmitted(false);
+        }, 3000);
+      } else {
+        setError(data.error || 'Hubo un error al enviar el mensaje');
+      }
+    } catch (err) {
+      setError('Error de conexión. Asegúrate de que el servidor esté corriendo en http://localhost:3001');
+      console.error('Error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const contactInfo = [
@@ -86,13 +110,25 @@ export default function Contact() {
 
         {/* Contact Form */}
         <div className='max-w-2xl mx-auto bg-slate-800 rounded-2xl border border-slate-700 p-8 md:p-12'>
-          {submitted ? (
+        {submitted ? (
             <div className='text-center py-12'>
               <div className='text-6xl mb-4 text-primary'>✓</div>
               <h3 className='text-2xl font-bold text-white mb-2'>¡Mensaje Enviado!</h3>
               <p className='text-gray-400'>
-                Gracias por contactarnos. Nos pondremos en contacto pronto.
+                Gracias por contactarnos. Nos pondremos en contacto proon.
               </p>
+            </div>
+          ) : error ? (
+            <div className='text-center py-12'>
+              <div className='text-6xl mb-4 text-red-500'>✗</div>
+              <h3 className='text-2xl font-bold text-white mb-2'>Error</h3>
+              <p className='text-gray-400'>{error}</p>
+              <button
+                onClick={() => setError('')}
+                className='mt-6 px-6 py-2 bg-primary hover:bg-indigo-700 text-white rounded-lg transition-colors duration-300'
+              >
+                Intentar de nuevo
+              </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className='space-y-6'>
@@ -175,8 +211,9 @@ export default function Contact() {
                 variant='primary' 
                 size='lg' 
                 className='w-full'
+                disabled={loading}
               >
-                Enviar Mensaje
+                {loading ? 'Enviando...' : 'Enviar Mensaje'}
               </Button>
 
               <p className='text-gray-400 text-sm text-center'>
