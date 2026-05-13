@@ -163,6 +163,17 @@ app.post('/api/contact', async (req, res) => {
 });
 
 // Ruta de prueba
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'API Vork Development activa ✅',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      contact: 'POST /api/contact'
+    }
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Servidor activo' });
 });
