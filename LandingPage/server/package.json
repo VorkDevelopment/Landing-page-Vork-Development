@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Backend server para Vork Development",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
+    "start": "node index.js",
+    "dev": "node --watch index.js",
     "build": "echo 'Build complete'"
   },
   "dependencies": {
